@@ -144,11 +144,12 @@ class TPLinkSteckdosenTA(ModularInput):
         if (host == "$decideOnStartup"):
             host = val_hostname
 
-        sourcetype = cleaned_params.get("sourcetype", "tplinksteckdosenta")
+        sourcetype = cleaned_params.get("sourcetype", "tplink_event")
         index = cleaned_params.get("index", "main")
         val_index = cleaned_params.get("tpsmindex", None)
         if (val_index is not None):
             index = val_index
+            sourcetype = "tplink_metrics"
 
         # Clean up old threads
         self.cleanup_threads(self.threads)
@@ -224,6 +225,7 @@ class TPLinkSteckdosenTA(ModularInput):
                         event = {
                         "timestamp": timestamp,
                         "device": ip,
+                        "inputname": val_name
                         }
                         emeter_str=decrypted
                         emeter = json.loads(emeter_str)
