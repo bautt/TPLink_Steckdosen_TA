@@ -40,8 +40,8 @@
   </fieldset>
   <row>
     <panel>
-      <html>
-        <img src="/static/app/hs110/hs110-trans.png" width="100px" height="60px" hspace="10" style="float:left"/>
+    <html>
+      <img src="/static/app/TPLink_Steckdosen_TA/images/hs110-trans.png" width="100px" height="60px" hspace="10" style="float:left"/>
        <h2>
     <p style="color:#808080">
     TP-Link HS-110 is a simple Wi-Fi Smart Plug with Energy Monitoring. Energy usage and voltage data is collected to the Splunk metric store. 
