@@ -1,9 +1,21 @@
 
+# Output from "energy" command is suitable for the metrics index
+# you should at least create one metric index
 [tplink_metrics]
 coldPath = $SPLUNK_DB/tplink_metrics/colddb
 datatype = metric
 enableDataIntegrityControl = 0
 enableTsidxReduction = 0
 homePath = $SPLUNK_DB/tplink_metrics/db
-maxTotalDataSizeMB = 2024
+maxTotalDataSizeMB = 3072
 thawedPath = $SPLUNK_DB/tplink_metrics/thaweddb
+
+#all other commands should go to the events index
+
+[tplink_events]
+coldPath = $SPLUNK_DB/tplink_events/colddb
+enableDataIntegrityControl = 0
+enableTsidxReduction = 0
+homePath = $SPLUNK_DB/tplink_events/db
+maxTotalDataSizeMB = 3072
+thawedPath = $SPLUNK_DB/tplink_events/thaweddb
