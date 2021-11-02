@@ -1,6 +1,7 @@
 <nav search_view="search" color="#DCDCDC">
   <view name="hs110" default='true' />
   <view name="analytics_workspace" />
+  <view name="search" />
   <view name="datasets" />
   <view name="reports" />
   <view name="alerts" />

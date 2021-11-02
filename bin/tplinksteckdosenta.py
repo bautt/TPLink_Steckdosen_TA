@@ -225,7 +225,7 @@ class TPLinkSteckdosenTA(ModularInput):
                         event = {
                         "timestamp": timestamp,
                         "device": ip,
-                        "inputname": val_name
+                        "inputname": val_name.replace("tplinksteckdosenta://", "")
                         }
                         emeter_str=decrypted
                         emeter = json.loads(emeter_str)
