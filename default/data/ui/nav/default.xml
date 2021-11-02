@@ -1,4 +1,4 @@
-<nav search_view="search" color="#006400">
+<nav search_view="search" color="#DCDCDC">
   <view name="hs110" default='true' />
   <view name="analytics_workspace" />
   <view name="datasets" />
