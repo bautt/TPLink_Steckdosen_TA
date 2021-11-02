@@ -29,14 +29,14 @@ class TPLinkSteckdosenTA(ModularInput):
     def __init__(self, timeout=30, thread_limit=None):
 
         scheme_args = {'title': "TP Link Steckdosen TA",
-                       'description': "Connects to TP Link-Homeautomation-Steckdosen in a fashionable manner.",
+                       'description': "Connects to TP Link smart energy meter plugs in a fashionable manner.",
                        'use_external_validation': "true",
                        'streaming_mode': "xml",
                        'use_single_instance': "true"}
 
         args = [
-                Field("name", "Name", "Typically just a name for your Steckdose", empty_allowed=False),
-                Field("hostname", "Hostname", "Steckdose's hostname or IP", empty_allowed=False),
+                Field("name", "Name", "Typically just a name for your smart plug aka Steckdose", empty_allowed=False),
+                Field("hostname", "Hostname", "Resolvable hostname or IP", empty_allowed=False),
                 Field("tpsport", "Port", "Steckdose's specific port (Default: 9999)", none_allowed=True, empty_allowed=False),
                 Field("tpsmindex", "Metric Index", "Override index setting for metrix", none_allowed=True, empty_allowed=False),
                 Field("tpscommand", "Command", "Steckdose's special command to send (Default: energy)",none_allowed=True, empty_allowed=False),
