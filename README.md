@@ -6,7 +6,21 @@ It is developed from this script: https://github.com/softScheck/tplink-smartplug
 
 ### Download and installation:
 * If you download a release https://github.com/bautt/TPLink_Steckdosen_TA/releases/ it will unpack as "TPLink_Steckdosen_TA".  
-* Move the app in to $SPLUNKHOME/etc/apps or use Web to install and restart. :rocket:
+* Move the app in to $SPLUNKHOME/etc/apps or use Splunk web Ui to upload and install. Restart. :rocket:
+* If you want to collect data from Universal Forwarders: configure it on the server and deploy the app to UF. 
+ ** Or create inputs.conf manually, see following example stanza: 
+ 
+```   
+    [tplinksteckdosenta://Coffee]
+     host = 10.11.12.29
+     hostname = 10.11.12.29
+     sourcetype = tplink_metrics
+     timeout = 10
+     tpsinterval = 5
+     tpsmindex = tplink_metrics
+     disabled = 0
+``` 
+
 
 
 ## Usage
