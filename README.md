@@ -5,7 +5,8 @@ It is developed from this script: https://github.com/softScheck/tplink-smartplug
 
 
 ### Download and installation:
-If you download a release https://github.com/bautt/TPLink_Steckdosen_TA/releases/ it will unpack as "TPLink_Steckdosen_TA".  Move the app in to $SPLUNKHOME/etc/apps or use Web to install and restart. :rocket:
+* If you download a release https://github.com/bautt/TPLink_Steckdosen_TA/releases/ it will unpack as "TPLink_Steckdosen_TA".  
+* Move the app in to $SPLUNKHOME/etc/apps or use Web to install and restart. :rocket:
 
 
 ## Usage
