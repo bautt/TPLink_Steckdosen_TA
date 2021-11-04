@@ -2,9 +2,8 @@
   <label>hs-110-base-1</label>
   <search id="base_power">
     <query>
-      | mstats max("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" span=3m BY device
-      | timechart max("tplink.hs110.power") AS Power  span=3m  BY device
-      | rename 10.11.12.29 AS Coffee, 10.11.12.30 AS TV, 10.11.12.96 AS Sleep, 10.11.12.97 AS Bake, 10.11.12.98 AS Wash
+      | mstats max("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" span=3m BY inputname
+      | timechart max("tplink.hs110.power") AS Power  span=3m  BY inputname
       | foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
 </query>
     <earliest>-7d@h</earliest>
