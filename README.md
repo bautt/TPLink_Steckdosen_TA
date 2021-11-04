@@ -17,7 +17,7 @@ Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen T
 ```  
  [tplinksteckdosenta://Coffee]
  host = Coffee
- hostname = 10.11.12.29
+ hostname = 10.11.12.30
  sourcetype = tplink_metrics
  timeout = 10
  tpsinterval = 5
