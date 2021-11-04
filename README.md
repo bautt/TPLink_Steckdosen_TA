@@ -34,7 +34,7 @@ Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen T
  
 ## Support
 
-This app is not officially supported by Splunk and is provided as is.
+This app is not officially supported by Splunk and is provided as is. Future hardware and firmware versions of TP-Link Smart Wi-Fi Plugs may or may not work. 
 
 ## License
 
