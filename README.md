@@ -10,7 +10,7 @@ It is based on a script from this project: https://github.com/softScheck/tplink-
 
 ## Configuration
 Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen TA" and configure a modular input for each smart plug.
- 
+ ![Configuration](modinput_screen.png)
  * If you want to collect data from Universal Forwarders: configure it on the server and deploy the app to UF. 
  ** Or create inputs.conf manually, see following example stanza: 
  
