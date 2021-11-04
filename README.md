@@ -30,7 +30,10 @@ Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen T
  Use Analytics Workspace to create charts. If you provided a meaningful name in the modinput configuration, you can use it as a dimension (split by inputname).
  
   ![Analytics](analytics.png)
-
+ 
+ Here is an example dashboard build based on panels created in Analytics Workspace:
+ 
+ ![Example Dashboard](example_dashboard.png)
  
 ## Support
 
