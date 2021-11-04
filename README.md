@@ -25,6 +25,9 @@ Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen T
  disabled = 0
  
 ``` 
+## Usage
+ Use Analytics Workspace to create charts: 
+  ![Analytics](analytics.png)
 
 
  
