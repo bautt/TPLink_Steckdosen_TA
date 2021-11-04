@@ -4,8 +4,8 @@ This app runs a python script to collect energy meter data from TP Link smart wl
 
 
 ### Download and installation:
-* If you download a release https://github.com/bautt/TPLink_Steckdosen_TA/releases/ it will unpack as "TPLink_Steckdosen_TA".  
-* Move the app in to $SPLUNKHOME/etc/apps or use Splunk web Ui to upload and install. Restart. :rocket:
+* Download the current release https://github.com/bautt/TPLink_Steckdosen_TA/releases/ it will unpack as "TPLink_Steckdosen_TA".  
+* Move the app in to $SPLUNKHOME/etc/apps or use Splunk web Ui to upload and install. Restart Splunk. :rocket:
 
 ## Configuration
 Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen TA" and configure a modular input for each smart plug.
