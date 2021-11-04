@@ -9,7 +9,9 @@ This app runs a python script to collect energy meter data from TP Link smart wl
 
 ## Configuration
 Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen TA" and configure a modular input for each smart plug.
- ![Configuration](modinput_screen.png)
+ 
+ <img src="modinput_screen.png" width="70%">
+
  * If you want to collect data from Universal Forwarders: configure it on the server and deploy the app to UF. 
  ** Or create inputs.conf manually, see following example stanza: 
  
@@ -28,7 +30,6 @@ Once installed you can go to  "Settings" > "Data inputs" > "TP Link Steckdosen T
  Use Analytics Workspace to create charts. If you provided a meaningful name in the modinput configuration, you can use it as a dimension (split by inputname).
  
   ![Analytics](analytics.png)
-
 
  
 ## Support
