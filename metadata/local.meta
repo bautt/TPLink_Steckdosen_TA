@@ -1,0 +1,54 @@
+[app/ui]
+version = 8.1.0
+modtime = 1635495384.959606000
+
+[app/launcher]
+version = 8.1.0
+modtime = 1635495384.960262000
+
+[app/install/install_source_checksum]
+version = 8.2.2
+modtime = 1635884324.683236000
+
+[indexes/script_test]
+owner = admin
+version = 8.2.2
+modtime = 1635953341.190188000
+
+[inputs/script%3A%2F%2F%24SPLUNK_HOME%2Fbin%2Fscripts%2Ftplink_smartplug.py%20-q%20-t%2010.11.12.30%20-c%20energy]
+owner = admin
+version = 8.2.2
+modtime = 1635953389.600006000
+
+[indexes/script_metric1]
+owner = admin
+version = 8.2.2
+modtime = 1635955026.925197000
+
+[inputs/script%3A%2F%2F%24SPLUNK_HOME%2Fbin%2Fscripts%2Ftplink_smartplug.py%20-q%20-t%2010.11.12.98%20-c%20energy]
+owner = admin
+version = 8.2.2
+modtime = 1635955060.313797000
+
+[views/hs110_old]
+version = 8.2.2
+modtime = 1636045160.002950000
+
+[views/hs110_base]
+version = 8.2.2
+modtime = 1636053246.355802000
+
+[views/laundry]
+owner = admin
+version = 8.2.2
+modtime = 1636392136.232960000
+
+[savedsearches/Laundry%20ready]
+owner = admin
+version = 8.2.2
+modtime = 1636705514.356264000
+
+[views/laundry_base_ds]
+owner = admin
+version = 8.2.2
+modtime = 1636322122.932680000

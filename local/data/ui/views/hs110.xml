@@ -1,0 +1,150 @@
+<form theme="dark">
+  <label>TP-Link Smart Plug Metrics</label>
+  <description>If you don't see any data here, please go to "Settings" &gt; "Data inputs" &gt; "TP Link Steckdosen TA" and configure a modular input for each smart plug.</description>
+  <fieldset submitButton="false">
+    <input type="multiselect" token="inputname" searchWhenChanged="true">
+      <label>Select Devices</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>Inputnames</fieldForLabel>
+      <fieldForValue>inputnames</fieldForValue>
+      <search>
+        <query>|mcatalog values(inputname) AS inputnames WHERE (index=tplink_metrics)
+|mvexpand inputnames</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
+      <default>*</default>
+      <delimiter> OR </delimiter>
+      <valuePrefix>inputname=</valuePrefix>
+    </input>
+    <input type="time" searchWhenChanged="true" token="global_time_tok">
+      <label>Time Range</label>
+      <default>
+        <earliest>-1h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown">
+      <label>Time Span</label>
+      <choice value="auto">auto</choice>
+      <choice value="5s">5s</choice>
+      <choice value="10s">10s</choice>
+      <choice value="30s">30s</choice>
+      <choice value="1m">1m</choice>
+      <choice value="5m">5m</choice>
+      <choice value="10m">10m</choice>
+      <choice value="30m">30m</choice>
+      <choice value="1h">1h</choice>
+      <default>auto</default>
+      <change>
+        <eval token="timechart_span">if($value$ == "auto", "", "span=".$value$)</eval>
+        <eval token="mstats_span">"span=".$value$</eval>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <chart>
+        <title>tp-link.plug.current</title>
+        <search>
+          <query>| mstats avg("tp-link.plug.current") prestats=true WHERE "index"="tplink_metrics" $mstats_span$ $inputname$ BY inputname
+| timechart avg("tp-link.plug.current") $timechart_span$ useother=false BY inputname 
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+| fields - _span*</query>
+          <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Avg":"#1e93c6","Coffee":"#1e93c6","Sleep":"#f2b827","TV":"#d6563c","Wash":"#6a5c9e"}</option>
+        <option name="charting.fieldDashStyles">{"Avg":"solid","Coffee":"solid","Sleep":"solid","TV":"solid","Wash":"solid"}</option>
+        <option name="charting.gridLinesX.showMajorLines">1</option>
+        <option name="charting.legend.mode">seriesCompare</option>
+        <option name="displayview">analytics_workspace</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>tp-link.plug.power</title>
+        <search>
+          <query>| mstats avg("tp-link.plug.power") prestats=true WHERE "index"="tplink_metrics" $mstats_span$ $inputname$ BY inputname
+| timechart avg("tp-link.plug.power") $timechart_span$ useother=false BY inputname WHERE max in top100
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+| fields - _span*</query>
+          <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Avg":"#1e93c6","Coffee":"#1e93c6","Sleep":"#f2b827","TV":"#d6563c","Wash":"#6a5c9e"}</option>
+        <option name="charting.fieldDashStyles">{"Avg":"solid","Coffee":"solid","Sleep":"solid","TV":"solid","Wash":"solid"}</option>
+        <option name="charting.gridLinesX.showMajorLines">1</option>
+        <option name="charting.legend.mode">seriesCompare</option>
+        <option name="displayview">analytics_workspace</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>tp-link.plug.voltage</title>
+        <search>
+          <query>| mstats avg("tp-link.plug.voltage") prestats=true WHERE "index"="tplink_metrics" $mstats_span$ $inputname$ BY  inputname
+| timechart avg("tp-link.plug.voltage") $timechart_span$ useother=false BY inputname WHERE max in top100
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+| fields - _span*</query>
+          <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Avg":"#1e93c6","Coffee":"#1e93c6","Sleep":"#f2b827","TV":"#d6563c","Wash":"#6a5c9e"}</option>
+        <option name="charting.fieldDashStyles">{"Avg":"solid","Coffee":"solid","Sleep":"solid","TV":"solid","Wash":"solid"}</option>
+        <option name="charting.gridLinesX.showMajorLines">1</option>
+        <option name="charting.legend.mode">seriesCompare</option>
+        <option name="displayview">analytics_workspace</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>tp-link.plug.total</title>
+        <search>
+          <query>| mstats avg("tp-link.plug.total") prestats=true WHERE "index"="tplink_metrics" $mstats_span$ $inputname$ BY inputname
+| timechart avg("tp-link.plug.total") $timechart_span$ useother=false BY inputname
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+
+| fields - _span*</query>
+          <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Avg":"#1e93c6","Coffee":"#1e93c6","Sleep":"#f2b827","TV":"#d6563c","Wash":"#6a5c9e"}</option>
+        <option name="charting.fieldDashStyles">{"Avg":"solid","Coffee":"solid","Sleep":"solid","TV":"solid","Wash":"solid"}</option>
+        <option name="charting.gridLinesX.showMajorLines">1</option>
+        <option name="charting.legend.mode">seriesCompare</option>
+        <option name="displayview">analytics_workspace</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+</form>

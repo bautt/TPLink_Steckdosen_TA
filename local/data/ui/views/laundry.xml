@@ -1,0 +1,171 @@
+<dashboard theme="light">
+  <label>Laundry Base</label>
+  <search id="LaundryBase">
+    <query>
+      | mstats avg("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" AND "inputname"="Wash" span=1m
+    </query>
+    <earliest>-3d</earliest>
+    <latest>now</latest>
+    <refresh>1m</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+  <row>
+    <panel>
+      <title>Zuletzt gestartet vor:</title>
+      <single>
+        <search base="LaundryBase">
+          <query>| timechart avg("tplink.hs110.power") AS Power span=10m 
+| delta Power AS DeltaPower p=1
+| delta DeltaPower AS Delta2Power p=1
+| delta Delta2Power AS Delta3Power p=1
+| eval DeltaSum=Power+DeltaPower+Delta2Power
+| eval LaundryState = if(((DeltaSum&gt;10 OR DeltaSum&lt;-10) AND Power&gt;10), "100","-100")
+| delta LaundryState AS LaundryChange
+| fields - Power, Delta2Power, Delta3Power, DeltaPower, DeltaSums
+| eval ONOFF=case(LaundryChange == 200, "On", LaundryChange == -200, "Off")
+| search ONOFF=On OR ONOFF=Off
+| eval start_time=if(ONOFF=="On",_time,null()), end_time=if(ONOFF=="Off",_time,null())
+| stats latest(start_time) as start_time,latest(end_time) as end_time 
+| eval now=time(), start_time=case((start_time &gt; now),"0 minutes ago",((now - start_time) &gt; 172800),(round(((now - start_time) / 86400)) . " days ago"),((now - start_time) &gt; 7200),(round(((now - start_time) / 3600)) . " hours ago"),((now - start_time) &gt; 120),(round(((now - start_time) / 60)) . " minutes ago"),((now - start_time) &gt; 60),"1 minute ago",((now - start_time) &lt;= 60),"just now")
+| fields start_time</query>
+          <refresh>1m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0x006d9c"]</option>
+        <option name="rangeValues">[0,60,70,120]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Dauer des letzten Waschvorgangs</title>
+      <single>
+        <search base="LaundryBase">
+          <query>| timechart avg("tplink.hs110.power") AS Power span=10m 
+| delta Power AS DeltaPower p=1
+| delta DeltaPower AS Delta2Power p=1
+| delta Delta2Power AS Delta3Power p=1
+| eval DeltaSum=Power+DeltaPower+Delta2Power
+| eval LaundryState = if(((DeltaSum&gt;10 OR DeltaSum&lt;-10) AND Power&gt;10), "100","-100")
+| delta LaundryState AS LaundryChange
+| eval ONOFF=case(LaundryChange == 200, "On", LaundryChange == -200, "Off")
+| search ONOFF=On OR ONOFF=Off
+| eval start_time=if(ONOFF=="On",_time,null()), end_time=if(ONOFF=="Off",_time,null())
+| stats latest(start_time) as start_time,latest(end_time) as end_time 
+| eval Dauer=case(end_time&lt;start_time, "Läuft", isnotnull(end_time) ,(abs(end_time-start_time)/60), 1=1, "Ungewiss")
+| fields Dauer</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0x006d9c","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,60,100,200]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Das letzte Mal fertig</title>
+      <single>
+        <search base="LaundryBase">
+          <query>
+| timechart avg("tplink.hs110.power") AS Power span=10m 
+| delta Power AS DeltaPower p=1
+| delta DeltaPower AS Delta2Power p=1
+| delta Delta2Power AS Delta3Power p=1
+| eval DeltaSum=Power+DeltaPower+Delta2Power
+| eval LaundryState = if(((DeltaSum&gt;10 OR DeltaSum&lt;-10) AND Power&gt;10), "100","-100")
+| delta LaundryState AS LaundryChange
+| fields - Power, Delta2Power, Delta3Power, DeltaPower, DeltaSums
+| eval ONOFF=case(LaundryChange == 200, "On", LaundryChange == -200, "Off")
+| search ONOFF=On OR ONOFF=Off
+| eval last_checked=_time
+| eval now=time(), last_checked=case((last_checked &gt; now),"0 minutes ago",((now - last_checked) &gt; 172800),(round(((now - last_checked) / 86400)) . " days ago"),((now - last_checked) &gt; 7200),(round(((now - last_checked) / 3600)) . " hours ago"),((now - last_checked) &gt; 120),(round(((now - last_checked) / 60)) . " minutes ago"),((now - last_checked) &gt; 60),"1 minute ago",((now - last_checked) &lt;= 60),"just now")
+| eval start_time=if(ONOFF=="On",_time,null()), end_time=if(ONOFF=="Off",_time,null())
+| search ONOFF="Off"
+| sort - _time
+| head 1
+| rename last_checked AS "LastOff"
+| fields "LastOff"</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timechart Laundry</title>
+      <!-- Secondary search that drives the annotations -->
+      <!-- Customize the event annotation colors based on category name -->
+      <chart>
+        <search base="LaundryBase">
+          <query>| timechart avg("tplink.hs110.power") AS Power span=5m 
+| autoregress  Power p=1-10
+| eval  moving_average=(Power  + Power_p1 + Power_p2 + Power_p3 + Power_p4 + Power_p5 + Power_p6 + Power_p7 + Power_p8 + Power_p9) /10 
+| fields _time Power moving_average
+| eval LaundryState = if(moving_average&gt;10, "100","-100")</query>
+          <refresh>1m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <search type="annotation">
+          <query>index=main OR index=tplink_events source="alert:Laundry Ready" | eval annotation_category="INFO" | eval annotation_label="Alert was sent to mobile"</query>
+          <earliest>-3d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.annotation.categoryColors">{"INFO":"#8B0000","WARN":"#0074D9"}</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">auto</option>
+        <option name="charting.axisY2.enabled">1</option>
+        <option name="charting.axisY2.scale">log</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">LaundryState</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">1</option>
+        <option name="charting.seriesColors">[#0074D9, "0x53a051","0x0877a6","0xf8be34","0xf1813f","0x006d9c"]</option>
+        <option name="height">287</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

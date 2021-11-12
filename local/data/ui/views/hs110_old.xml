@@ -1,0 +1,307 @@
+<form theme="dark">
+  <label>Energy and Coffee</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" searchWhenChanged="true" token="global_time_tok">
+      <label>Time Range</label>
+      <default>
+        <earliest>-1h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="span" searchWhenChanged="true">
+      <label>Time Span</label>
+      <choice value="auto">auto</choice>
+      <choice value="5s">5s</choice>
+      <choice value="10s">10s</choice>
+      <choice value="30s">30s</choice>
+      <choice value="1m">1m</choice>
+      <choice value="5m">5m</choice>
+      <choice value="10m">10m</choice>
+      <choice value="30m">30m</choice>
+      <choice value="1h">1h</choice>
+      <default>10s</default>
+      <change>
+        <eval token="timechart_span">if($value$ == "auto", "", "span=".$value$)</eval>
+        <eval token="mstats_span">"span=".$value$</eval>
+      </change>
+      <initialValue>10s</initialValue>
+    </input>
+    <input type="dropdown" token="device">
+      <label>Device</label>
+      <choice value="*">All</choice>
+      <choice value="10.11.12.29">Coffee</choice>
+      <choice value="10.11.12.97">Cook</choice>
+      <choice value="10.11.12.30">TV</choice>
+      <choice value="10.11.12.96">Sleep</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <prefix/>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+      <img src="/static/app/TPLink_Steckdosen_TA/images/hs110-trans.png" width="100px" height="60px" hspace="10" style="float:left"/>
+       <h2>
+    <p style="color:#808080">
+    TP-Link HS-110 is a simple Wi-Fi Smart Plug with Energy Monitoring. Energy usage and voltage data is collected to the Splunk metric store. <br/>
+If you don't see any data here, make sure the modular input is configured.      </p>
+</h2>
+     
+      <p/>
+    </html>
+    </panel>
+    <panel>
+      <title>Time since last coffee</title>
+      <single>
+        <search>
+          <query>| mstats max("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" AND device=10.11.12.29 span=3m
+| timechart max("tplink.hs110.power") AS Power span=3m
+		  | search Power&gt;1250
+| sort - _time
+| head 1
+| eval last_checked=_time
+| eval now=time(), last_checked=case((last_checked &gt; now),"0 minutes ago",((now - last_checked) &gt; 172800),(round(((now - last_checked) / 86400)) . " days ago"),((now - last_checked) &gt; 7200),(round(((now - last_checked) / 3600)) . " hours ago"),((now - last_checked) &gt; 120),(round(((now - last_checked) / 60)) . " minutes ago"),((now - last_checked) &gt; 60),"1 minute ago",((now - last_checked) &lt;= 60),"just now")
+| fields  last_checked  -_time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showTrendIndicator">0</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Cups of coffee today</title>
+      <single>
+        <search>
+          <query>| mstats max("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" span=3m BY device
+| timechart max("tplink.hs110.power") AS Power span=3m  BY device 
+| rename 10.11.12.29 AS Kaffee, 10.11.12.30 AS TV, 10.11.12.97 AS Herd, 10.11.12.96 AS Schlaf
+| fields _time -_span* Kaffee
+| search Kaffee&gt;1250 | bin span=3m _time
+| timechart span=1d count AS "Cups of Coffee" partial=t</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <refresh>30s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="drilldown">none</option>
+        <option name="height">151</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,3,8,15]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Coffee by hour of day</title>
+      <chart>
+        <search>
+          <query>| mstats max("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" AND device=10.11.12.29 span=3m 
+| timechart max("tplink.hs110.power") AS Power span=3m
+| search Power&gt;1250 
+| eval date_wday=strftime(_time, "%A"), date_hour=strftime(_time, "%H")
+| bin span=3m _time
+| chart count by date_wday,date_hour
+| eval sort_field = case(date_wday=="Monday",    1,
+                         date_wday=="Tuesday",   2,
+                         date_wday=="Wednesday", 3,
+                         date_wday=="Thursday",  4,
+                         date_wday=="Friday",    5,
+                         date_wday=="Saturday",  6,
+                         date_wday=="Sunday",    7)
+| sort 0 sort_field
+| fields - sort_field</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="height">173</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Coffee by day of week</title>
+      <chart>
+        <search>
+          <query>| mstats max("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" AND device=10.11.12.29 span=3m 
+| timechart max("tplink.hs110.power") AS Power span=3m
+		  | search Power&gt;1250 
+| eval date_wday=strftime(_time, "%A"), date_hour=strftime(_time, "%H")
+| bin span=3m _time
+| timechart span=1d count by date_wday
+| fields Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+| fields - _time</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Sunday":#C70039,"Saturday":#9A2C14,"Friday":#E4B6AD}</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="height">168</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Power usage  in Watt</title>
+      <chart>
+        <search>
+          <query>| mstats avg("tplink.hs110.power") prestats=true WHERE "index"="tplink_metrics" AND device=$device$   $mstats_span$  BY device
+| timechart avg("tplink.hs110.power") $timechart_span$ useother=false BY device 
+| rename 10.11.12.29 AS Coffee, 10.11.12.30 AS TV, 10.11.12.97 AS Cook,  10.11.12.96 AS Sleep, 10.11.12.98 AS Wash
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+| fields - _span*</query>
+          <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.axisY.includeZero">1</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">minmax</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Avg":"#1e93c6","hs110-1":"#1e93c6","hs110-2":"#f2b827"}</option>
+        <option name="charting.fieldDashStyles">{"Avg":"solid","hs110-1":"solid","hs110-2":"solid"}</option>
+        <option name="charting.gridLinesX.showMajorLines">1</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.mode">seriesCompare</option>
+        <option name="refresh.display">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Total Power accumulated in kWh</title>
+      <chart>
+        <title>Last day, hourly</title>
+        <search>
+          <query>| mstats avg("tplink.hs110.total") prestats=true WHERE "index"="tplink_metrics" AND device=* span=10m  BY device
+| timechart avg("tplink.hs110.total") AS Total  span=10m useother=false BY device 
+| rename 10.11.12.29 AS Coffee, 10.11.12.30 AS TV, 10.11.12.97 AS Cook,  10.11.12.96 AS Sleep, 10.11.12.98 AS Wash
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+| fields - _span*</query>
+          <earliest>-2d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>1m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.axisY.includeZero">1</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Avg":"#1e93c6","hs110-1":"#1e93c6","hs110-2":"#f2b827"}</option>
+        <option name="charting.fieldDashStyles">{"Avg":"solid","hs110-1":"solid","hs110-2":"solid"}</option>
+        <option name="charting.gridLinesX.showMajorLines">1</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="refresh.display">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Voltage in Volt</title>
+      <chart>
+        <search>
+          <query>| mstats avg("tplink.hs110.voltage") prestats=true WHERE "index"="tplink_metrics" AND device=$device$  $mstats_span$  BY device
+| timechart avg("tplink.hs110.voltage") $timechart_span$  useother=false BY device 
+| rename 10.11.12.29 AS Coffee, 10.11.12.30 AS TV, 10.11.12.97 AS Cook,  10.11.12.96 AS Sleep, 10.11.12.98 AS Wash
+| foreach * [eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;',2)]
+| fields - _span*</query>
+          <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">none</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</form>
